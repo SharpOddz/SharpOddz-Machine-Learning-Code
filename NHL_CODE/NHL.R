@@ -17,7 +17,7 @@ setwd("/Users/colinaslett/Desktop/SwimmingCSV/NHL_ML_DATA")
 training_data<-read.csv("NHL_TRAINING_DATA.csv", header = TRUE, stringsAsFactors = FALSE)
 prediction_data<-read.csv("NHL_PRED_SHEET.csv", header = TRUE, stringsAsFactors = FALSE)
 
-date <- "2022-04-12"
+date <- Sys.Date()
 
 #Simple Regression
 #model <- lm(SCORE~.,data = training_data)
@@ -33,7 +33,9 @@ write.csv(slr_pred, file = file_name)
 #modelsvm <- svm(SCORE~.,training_data)
 #save(modelsvm,file = "NHL_SVM.RData")
 load("NHL_SVM.RData")
-predict(modelsvm,prediction_data)
+svm_pred <- data.frame(prediction_data$NAME,predict(modelsvm,prediction_data))
+file_name <- paste(date,"_SVM_NHL_PREDICTIONS.csv",sep="")
+write.csv(svm_pred, file = file_name)
 
 
 
@@ -42,16 +44,19 @@ predict(modelsvm,prediction_data)
 #                  shrinkage = 0.01, interaction.depth = 4)
 #save(AdvgradBoost,file = "NHL_GRADIENT_BOOST.RData")
 load("NHL_GRADIENT_BOOST.RData")
-#plot(AdvgradBoost,i.var=7)
-predict(AdvgradBoost,prediction_data)
-#summary(AdvgradBoost,las=1)
+gbt_pred <- data.frame(prediction_data$NAME,predict(AdvgradBoost,prediction_data))
+file_name <- paste(date,"_GBT_NHL_PREDICTIONS.csv",sep="")
+write.csv(gbt_pred, file = file_name)
+
 
 
 #Random Forest Tree
 #rfAdv <- randomForest(SCORE~.,data = training_data,mtry = 5,importance = TRUE,na.action=na.roughfix)
 #save(rfAdv,file = "NHL_RandomForest.RData")
 load("NHL_RandomForest.RData")
-predict(rfAdv,prediction_data)
+rft_pred <- data.frame(prediction_data$NAME,predict(rfAdv,prediction_data))
+file_name <- paste(date,"_RFT_NHL_PREDICTIONS.csv",sep="")
+write.csv(rft_pred, file = file_name)
 #varImpPlot(rfAdv)
 #min_depth_frame <- min_depth_distribution(rfAdv)
 #plot_min_depth_distribution(min_depth_frame)
@@ -110,6 +115,11 @@ prediction_data$OPP_HITS <-(prediction_data$OPP_HITS - 12)/(40 - 12)
 #save(n,file="NHL_NEURAL_NET.RData")
 load("NHL_NEURAL_NET.RData")
 output <- compute(n, prediction_data)
-output$net.result*10
+nn_pred <- data.frame(prediction_data$NAME,output$net.result*10)
+file_name <- paste(date,"_NN_NHL_PREDICTIONS.csv",sep="")
+write.csv(nn_pred, file = file_name)
+#output$net.result*10
+
 #TIMES TEN TO UN-NORMALIZE THE OUTPUT
 #hist(training_data$OPP_HITS)
+
